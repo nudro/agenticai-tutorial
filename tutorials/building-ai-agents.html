@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Learn how to build autonomous AI agents using LangGraph and LangChain" />
+    <meta name="author" content="Agentic AI Tutorial Team" />
+    <title>Building AI Agents - Agentic AI Tutorial</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
+    <!-- Bootstrap icons-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="../css/styles.css" rel="stylesheet" />
+</head>
+<body class="d-flex flex-column h-100">
+    <main class="flex-shrink-0">
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container px-5">
+                <a class="navbar-brand" href="../tutorials.html">Agentic AI Tutorial</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="../tutorials.html">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="../agentic-ai-theory.html">Agentic AI Theory</a></li>
+                        <li class="nav-item"><a class="nav-link" href="../video-resources.html">Video Resources</a></li>
+                        <li class="nav-item"><a class="nav-link" href="../about.html">About</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Header-->
+        <header class="py-5">
+            <div class="container px-5 pb-5">
+                <div class="text-center">
+                    <div class="badge bg-gradient-primary-to-secondary text-white mb-4"><div class="text-uppercase">Tutorial</div></div>
+                    <h1 class="display-4 fw-bolder mb-3">Building AI Agents</h1>
+                    <p class="lead fw-normal text-muted mb-4">Estimated time to complete: 90 minutes</p>
+                    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center mb-3">
+                        <a class="btn btn-primary btn-lg px-5 py-3 me-sm-3 fs-6 fw-bolder" href="#tutorial-content">Start Learning</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Tutorial content-->
+        <section class="py-5 bg-light" id="tutorial-content">
+            <div class="container px-5 my-5">
+                <div class="row gx-5">
+                    <div class="col-lg-8">
+                        <!-- Tutorial content-->
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">Introduction to AI Agents</h2>
+                            <p class="fs-5 mb-4">AI agents are systems that use large language models (LLMs) to decide the control flow of an application. Unlike traditional applications with hard-coded control flows, agents can dynamically choose their own path to solve complex problems.</p>
+                            <p class="fs-5 mb-4">In this tutorial, you'll learn how to build AI agents using LangGraph and LangChain, enabling your applications to make autonomous decisions, interact with external tools, and solve complex tasks with minimal human intervention.</p>
+                        </div>
+                        
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">Understanding Agent Architectures</h2>
+                            <p class="fs-5 mb-4">There are several types of agent architectures, each giving an LLM varying levels of control:</p>
+                            
+                            <h3 class="fw-bolder mb-3">1. Router Agents</h3>
+                            <p class="fs-5 mb-4">Router agents allow an LLM to select a single step from a specified set of options. This is a relatively limited level of control because the LLM typically focuses on making a single decision from a limited set of pre-defined options.</p>
+                            <p class="fs-5 mb-4">Router agents often use structured outputs to ensure the LLM's decision can be reliably interpreted and acted upon by the system.</p>
+                            
+                            <h3 class="fw-bolder mb-3">2. Tool-Calling Agents</h3>
+                            <p class="fs-5 mb-4">Tool-calling agents expand the LLM's control in two key ways:</p>
+                            <ul class="fs-5 mb-4">
+                                <li><strong>Multi-step decision making:</strong> The LLM can make a series of decisions, one after another, instead of just one.</li>
+                                <li><strong>Tool access:</strong> The LLM can choose from and use a variety of tools to accomplish tasks.</li>
+                            </ul>
+                            <p class="fs-5 mb-4">The ReAct architecture is a popular general-purpose agent architecture that combines these expansions, integrating three core concepts:</p>
+                            <ol class="fs-5 mb-4">
+                                <li><strong>Tool calling:</strong> Allowing the LLM to select and use various tools as needed.</li>
+                                <li><strong>Memory:</strong> Enabling the agent to retain and use information from previous steps.</li>
+                                <li><strong>Planning:</strong> Empowering the LLM to create and follow multi-step plans to achieve goals.</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">Building a Tool-Calling Agent with LangGraph</h2>
+                            <p class="fs-5 mb-4">Let's walk through the process of building a tool-calling agent using LangGraph and LangChain:</p>
+                            
+                            <h3 class="fw-bolder mb-3">1. Setting Up Your Environment</h3>
+                            <p class="fs-5 mb-4">First, install the necessary packages:</p>
+                            <pre class="bg-light p-4 rounded"><code>pip install langchain langgraph openai</code></pre>
+                            
+                            <h3 class="fw-bolder mb-3">2. Defining Tools</h3>
+                            <p class="fs-5 mb-4">Tools are functions that allow an agent to interact with external systems. Let's define some simple tools:</p>
+                            <pre class="bg-light p-4 rounded"><code>from langchain.tools import tool
+
+@tool
+def search_database(query: str) -> str:
+    """Search the database for information related to the query."""
+    # In a real application, this would connect to a database
+    return f"Found information about {query} in the database."
+
+@tool
+def calculate(expression: str) -> str:
+    """Calculate the result of a mathematical expression."""
+    try:
+        return str(eval(expression))
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+@tool
+def get_weather(location: str) -> str:
+    """Get the current weather for a location."""
+    # In a real application, this would call a weather API
+    return f"The weather in {location} is sunny with a temperature of 72°F."</code></pre>
+                            
+                            <h3 class="fw-bolder mb-3">3. Creating a ReAct Agent</h3>
+                            <p class="fs-5 mb-4">Now, let's create a ReAct agent using LangGraph:</p>
+                            <pre class="bg-light p-4 rounded"><code>from langchain_openai import ChatOpenAI
+from langchain.agents import AgentExecutor, create_react_agent
+from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.tools.render import format_tool_to_openai_function
+from langchain.memory import ConversationBufferMemory
+
+# Initialize the language model
+llm = ChatOpenAI(model="gpt-4", temperature=0)
+
+# Define the tools
+tools = [search_database, calculate, get_weather]
+
+# Create a prompt template
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful AI assistant that can use tools to answer questions."),
+    MessagesPlaceholder(variable_name="chat_history"),
+    ("human", "{input}"),
+    MessagesPlaceholder(variable_name="agent_scratchpad"),
+])
+
+# Create the agent
+agent = create_react_agent(llm, tools, prompt)
+
+# Create memory
+memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+
+# Create the agent executor
+agent_executor = AgentExecutor(
+    agent=agent,
+    tools=tools,
+    memory=memory,
+    verbose=True
+)</code></pre>
+                            
+                            <h3 class="fw-bolder mb-3">4. Running the Agent</h3>
+                            <p class="fs-5 mb-4">Now you can run the agent with a user query:</p>
+                            <pre class="bg-light p-4 rounded"><code>response = agent_executor.invoke({"input": "What's the weather in New York and what is 15 * 7?"})
+print(response["output"])</code></pre>
+                        </div>
+                        
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">Advanced Agent Architectures</h2>
+                            <p class="fs-5 mb-4">Beyond basic tool-calling agents, LangGraph offers several powerful features for building more sophisticated agent systems:</p>
+                            
+                            <h3 class="fw-bolder mb-3">1. Human-in-the-Loop Agents</h3>
+                            <p class="fs-5 mb-4">Human involvement can significantly enhance agent reliability, especially for sensitive tasks. This can involve:</p>
+                            <ul class="fs-5 mb-4">
+                                <li><strong>Approving specific actions:</strong> Having a human review and approve critical decisions.</li>
+                                <li><strong>Providing feedback:</strong> Allowing humans to correct or guide the agent's behavior.</li>
+                                <li><strong>Offering guidance:</strong> Helping the agent navigate complex decision-making processes.</li>
+                            </ul>
+                            <p class="fs-5 mb-4">Human-in-the-loop patterns are crucial when full automation isn't feasible or desirable.</p>
+                            
+                            <h3 class="fw-bolder mb-3">2. Parallel Agents</h3>
+                            <p class="fs-5 mb-4">Parallel processing is vital for efficient multi-agent systems and complex tasks. LangGraph supports parallelization through its Send API, enabling:</p>
+                            <ul class="fs-5 mb-4">
+                                <li><strong>Concurrent processing:</strong> Handling multiple states simultaneously.</li>
+                                <li><strong>Map-reduce operations:</strong> Distributing tasks across multiple agents and combining results.</li>
+                                <li><strong>Independent subtasks:</strong> Processing unrelated tasks in parallel for improved efficiency.</li>
+                            </ul>
+                            
+                            <h3 class="fw-bolder mb-3">3. Subgraphs</h3>
+                            <p class="fs-5 mb-4">Subgraphs are essential for managing complex agent architectures, particularly in multi-agent systems. They allow:</p>
+                            <ul class="fs-5 mb-4">
+                                <li><strong>Isolated state management:</strong> Each agent maintains its own state.</li>
+                                <li><strong>Hierarchical organization:</strong> Creating teams of agents with specialized roles.</li>
+                                <li><strong>Controlled communication:</strong> Managing how agents interact with each other and the main system.</li>
+                            </ul>
+                            
+                            <h3 class="fw-bolder mb-3">4. Reflection Mechanisms</h3>
+                            <p class="fs-5 mb-4">Reflection mechanisms can significantly improve agent reliability by:</p>
+                            <ol class="fs-5 mb-4">
+                                <li><strong>Evaluating task completion:</strong> Assessing whether the agent has successfully completed its task.</li>
+                                <li><strong>Providing feedback:</strong> Offering insights for iterative improvement.</li>
+                                <li><strong>Enabling self-correction:</strong> Allowing the agent to identify and fix its own mistakes.</li>
+                            </ol>
+                            <p class="fs-5 mb-4">While often LLM-based, reflection can also use deterministic methods. For instance, in coding tasks, compilation errors can serve as feedback.</p>
+                        </div>
+                        
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">Building a Multi-Agent System</h2>
+                            <p class="fs-5 mb-4">Let's create a simple multi-agent system using LangGraph:</p>
+                            
+                            <h3 class="fw-bolder mb-3">1. Defining Agent Roles</h3>
+                            <p class="fs-5 mb-4">First, let's define different agent roles:</p>
+                            <pre class="bg-light p-4 rounded"><code>from langchain_openai import ChatOpenAI
+from langchain.agents import AgentExecutor, create_react_agent
+from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+# Initialize the language model
+llm = ChatOpenAI(model="gpt-4", temperature=0)
+
+# Define tools for the researcher agent
+research_tools = [search_database]
+
+# Define tools for the calculator agent
+calculator_tools = [calculate]
+
+# Define tools for the weather agent
+weather_tools = [get_weather]
+
+# Create prompts for each agent
+researcher_prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a research assistant that can search databases for information."),
+    MessagesPlaceholder(variable_name="chat_history"),
+    ("human", "{input}"),
+    MessagesPlaceholder(variable_name="agent_scratchpad"),
+])
+
+calculator_prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a calculator that can solve mathematical expressions."),
+    MessagesPlaceholder(variable_name="chat_history"),
+    ("human", "{input}"),
+    MessagesPlaceholder(variable_name="agent_scratchpad"),
+])
+
+weather_prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a weather assistant that can provide weather information."),
+    MessagesPlaceholder(variable_name="chat_history"),
+    ("human", "{input}"),
+    MessagesPlaceholder(variable_name="agent_scratchpad"),
+])
+
+# Create the agents
+researcher_agent = create_react_agent(llm, research_tools, researcher_prompt)
+calculator_agent = create_react_agent(llm, calculator_tools, calculator_prompt)
+weather_agent = create_react_agent(llm, weather_tools, weather_prompt)
+
+# Create agent executors
+researcher_executor = AgentExecutor(agent=researcher_agent, tools=research_tools, verbose=True)
+calculator_executor = AgentExecutor(agent=calculator_agent, tools=calculator_tools, verbose=True)
+weather_executor = AgentExecutor(agent=weather_agent, tools=weather_tools, verbose=True)</code></pre>
+                            
+                            <h3 class="fw-bolder mb-3">2. Creating a Router Agent</h3>
+                            <p class="fs-5 mb-4">Now, let's create a router agent that can direct queries to the appropriate specialized agent:</p>
+                            <pre class="bg-light p-4 rounded"><code>from langchain.prompts import ChatPromptTemplate
+from langchain.output_parsers import PydanticOutputParser
+from pydantic import BaseModel, Field
+from typing import Literal
+
+# Define the output schema
+class RouterOutput(BaseModel):
+    agent: Literal["researcher", "calculator", "weather"] = Field(description="The agent to route the query to")
+    reasoning: str = Field(description="The reasoning behind the routing decision")
+
+# Create a parser
+parser = PydanticOutputParser(pydantic_object=RouterOutput)
+
+# Create a prompt for the router
+router_prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a router that directs queries to the appropriate agent. Choose from: researcher, calculator, or weather."),
+    ("human", "{input}"),
+    ("system", "Format your response as: {format_instructions}"),
+])
+
+# Create the router
+router = router_prompt | llm | parser
+
+# Function to route queries
+def route_query(query: str):
+    result = router.invoke({"input": query, "format_instructions": parser.get_format_instructions()})
+    return result.agent</code></pre>
+                            
+                            <h3 class="fw-bolder mb-3">3. Implementing the Multi-Agent System</h3>
+                            <p class="fs-5 mb-4">Finally, let's implement the multi-agent system:</p>
+                            <pre class="bg-light p-4 rounded"><code>def multi_agent_system(query: str):
+    # Route the query to the appropriate agent
+    agent = route_query(query)
+    
+    # Execute the query with the selected agent
+    if agent == "researcher":
+        return researcher_executor.invoke({"input": query})
+    elif agent == "calculator":
+        return calculator_executor.invoke({"input": query})
+    elif agent == "weather":
+        return weather_executor.invoke({"input": query})
+    else:
+        return {"output": "Unknown agent type."}
+
+# Example usage
+response = multi_agent_system("What's the weather in New York?")
+print(response["output"])
+
+response = multi_agent_system("What is 15 * 7?")
+print(response["output"])
+
+response = multi_agent_system("Tell me about quantum computing.")
+print(response["output"])</code></pre>
+                        </div>
+                        
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">Best Practices for Building AI Agents</h2>
+                            <p class="fs-5 mb-4">To create effective AI agents, consider these best practices:</p>
+                            <ul class="fs-5 mb-4">
+                                <li><strong>Start simple:</strong> Begin with a basic agent and gradually add complexity.</li>
+                                <li><strong>Define clear tools:</strong> Ensure each tool has a specific purpose and clear input/output specifications.</li>
+                                <li><strong>Provide context:</strong> Give the agent enough context to make informed decisions.</li>
+                                <li><strong>Implement error handling:</strong> Design your agent to gracefully handle errors and unexpected inputs.</li>
+                                <li><strong>Use memory effectively:</strong> Leverage memory to maintain context across interactions.</li>
+                                <li><strong>Test thoroughly:</strong> Test your agent with a variety of inputs to ensure robust performance.</li>
+                                <li><strong>Monitor performance:</strong> Track your agent's performance and make adjustments as needed.</li>
+                                <li><strong>Consider human oversight:</strong> Implement human-in-the-loop mechanisms for critical decisions.</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">Real-World Applications</h2>
+                            <p class="fs-5 mb-4">AI agents are being used in various applications across industries:</p>
+                            <ul class="fs-5 mb-4">
+                                <li><strong>Customer Service:</strong> Autonomous agents that can handle customer inquiries and support tickets.</li>
+                                <li><strong>Research Assistance:</strong> Agents that can search databases, analyze papers, and summarize findings.</li>
+                                <li><strong>Data Analysis:</strong> Agents that can process and analyze data, generating insights and visualizations.</li>
+                                <li><strong>Content Creation:</strong> Agents that can generate and edit content based on specific requirements.</li>
+                                <li><strong>Task Automation:</strong> Agents that can automate repetitive tasks and workflows.</li>
+                                <li><strong>Decision Support:</strong> Agents that can provide recommendations and insights to aid human decision-making.</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">Conclusion</h2>
+                            <p class="fs-5 mb-4">Building AI agents with LangGraph and LangChain enables you to create powerful, autonomous systems that can solve complex problems with minimal human intervention. By understanding different agent architectures and implementing best practices, you can develop agents that are reliable, efficient, and adaptable to various tasks.</p>
+                            <p class="fs-5 mb-4">In this tutorial, we've explored the fundamentals of AI agents, how to build them using LangGraph, and advanced techniques for creating more sophisticated agent systems. With these tools and knowledge, you can start building your own AI agents to tackle complex challenges in your domain.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <!-- Sidebar-->
+                        <div class="card shadow border-0 rounded-lg mb-5">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <h5 class="fw-bolder">Tutorial Details</h5>
+                                    <p class="mb-0">Duration: ~90 minutes</p>
+                                    <p class="mb-0">Prerequisites: Basic Python knowledge, understanding of LangChain, familiarity with LLMs</p>
+                                </div>
+                                <div class="mb-3">
+                                    <h5 class="fw-bolder">Resources</h5>
+                                    <ul class="list-unstyled mb-0">
+                                        <li><a href="https://langchain-ai.github.io/langgraph/concepts/agentic_concepts/" target="_blank">LangGraph: Agentic Concepts</a></li>
+                                        <li><a href="https://python.langchain.com/docs/modules/agents/" target="_blank">LangChain Agents</a></li>
+                                        <li><a href="https://python.langchain.com/docs/modules/agents/agent_types/react" target="_blank">ReAct Agent</a></li>
+                                        <li><a href="https://python.langchain.com/docs/modules/agents/tools/" target="_blank">LangChain Tools</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Footer-->
+    <footer class="bg-dark py-4 mt-auto">
+        <div class="container px-5">
+            <div class="row align-items-center justify-content-between flex-column flex-sm-row">
+                <div class="col-auto"><div class="small m-0 text-white">Copyright &copy; Agentic AI Tutorial 2024</div></div>
+                <div class="col-auto">
+                    <a class="link-light small" href="#!">Privacy</a>
+                    <span class="text-white mx-1">&middot;</span>
+                    <a class="link-light small" href="#!">Terms</a>
+                    <span class="text-white mx-1">&middot;</span>
+                    <a class="link-light small" href="#!">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
+    <script src="../js/scripts.js"></script>
+</body>
+</html> 

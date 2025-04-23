@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Learn how to implement Retrieval Augmented Generation (RAG) for more accurate AI responses" />
+    <meta name="author" content="Agentic AI Tutorial Team" />
+    <title>Retrieval Augmented Generation - Agentic AI Tutorial</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
+    <!-- Bootstrap icons-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="../css/styles.css" rel="stylesheet" />
+</head>
+<body class="d-flex flex-column h-100">
+    <main class="flex-shrink-0">
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container px-5">
+                <a class="navbar-brand" href="../tutorials.html">Agentic AI Tutorial</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="../tutorials.html">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="../agentic-ai-theory.html">Agentic AI Theory</a></li>
+                        <li class="nav-item"><a class="nav-link" href="../video-resources.html">Video Resources</a></li>
+                        <li class="nav-item"><a class="nav-link" href="../about.html">About</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Header-->
+        <header class="py-5">
+            <div class="container px-5 pb-5">
+                <div class="text-center">
+                    <div class="badge bg-gradient-primary-to-secondary text-white mb-4"><div class="text-uppercase">Tutorial</div></div>
+                    <h1 class="display-4 fw-bolder mb-3">Retrieval Augmented Generation (RAG)</h1>
+                    <p class="lead fw-normal text-muted mb-4">Estimated time to complete: 60 minutes</p>
+                    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center mb-3">
+                        <a class="btn btn-primary btn-lg px-5 py-3 me-sm-3 fs-6 fw-bolder" href="#content">Start Learning</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Tutorial content-->
+        <section class="py-5" id="tutorial-content">
+            <div class="container px-5 my-5">
+                <div class="row gx-5">
+                    <div class="col-lg-8">
+                        <!-- Tutorial content-->
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">Introduction to Retrieval Augmented Generation</h2>
+                            <p class="fs-5 mb-4">Retrieval Augmented Generation (RAG) is a powerful technique that enhances the capabilities of large language models (LLMs) by connecting them to external knowledge sources. Unlike traditional LLMs that rely solely on their training data, RAG allows models to access up-to-date, domain-specific information when generating responses.</p>
+                            <p class="fs-5 mb-4">In this tutorial, you'll learn how to implement RAG systems using LangChain and other tools, enabling your AI applications to provide more accurate, relevant, and current information to users.</p>
+                        </div>
+                        
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">Why RAG Matters</h2>
+                            <p class="fs-5 mb-4">Large language models face several limitations that RAG helps address:</p>
+                            <ul class="fs-5 mb-4">
+                                <li><strong>Outdated Information:</strong> LLMs are trained on data up to a specific date and don't have access to newer information.</li>
+                                <li><strong>Hallucinations:</strong> LLMs may generate plausible-sounding but incorrect information when they don't know the answer.</li>
+                                <li><strong>Domain Specificity:</strong> General-purpose LLMs lack specialized knowledge in specific fields or industries.</li>
+                                <li><strong>Transparency:</strong> Traditional LLMs don't provide sources for their information, making it difficult to verify accuracy.</li>
+                            </ul>
+                            <p class="fs-5 mb-4">RAG solves these problems by retrieving relevant information from external sources before generating a response, ensuring that the output is grounded in authoritative, up-to-date data.</p>
+                        </div>
+                        
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">How RAG Works</h2>
+                            <p class="fs-5 mb-4">The RAG process consists of several key steps:</p>
+                            <ol class="fs-5 mb-4">
+                                <li><strong>Data Preparation:</strong> External knowledge sources are processed, chunked, and converted into vector embeddings.</li>
+                                <li><strong>Storage:</strong> These embeddings are stored in a vector database for efficient retrieval.</li>
+                                <li><strong>Retrieval:</strong> When a user query is received, it's converted to an embedding and used to find relevant information in the vector database.</li>
+                                <li><strong>Augmentation:</strong> The retrieved information is added to the prompt sent to the LLM.</li>
+                                <li><strong>Generation:</strong> The LLM generates a response based on both its internal knowledge and the retrieved information.</li>
+                            </ol>
+                            <p class="fs-5 mb-4">This approach allows the LLM to provide more accurate, relevant, and up-to-date information while maintaining its natural language generation capabilities.</p>
+                        </div>
+                        
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">Implementing RAG with LangChain</h2>
+                            <p class="fs-5 mb-4">LangChain provides a comprehensive framework for building RAG applications. Here's a step-by-step guide to implementing RAG:</p>
+                            
+                            <h3 class="fw-bolder mb-3">1. Document Loading</h3>
+                            <p class="fs-5 mb-4">First, you need to load your documents into LangChain:</p>
+                            <pre class="bg-light p-4 rounded"><code>from langchain.document_loaders import TextLoader, PDFLoader, DirectoryLoader
+
+# Load a single text file
+loader = TextLoader("data.txt")
+documents = loader.load()
+
+# Load all PDFs in a directory
+loader = DirectoryLoader("./data", glob="**/*.pdf", loader_cls=PDFLoader)
+documents = loader.load()</code></pre>
+                            
+                            <h3 class="fw-bolder mb-3">2. Text Splitting</h3>
+                            <p class="fs-5 mb-4">Documents need to be split into smaller chunks for processing:</p>
+                            <pre class="bg-light p-4 rounded"><code>from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,
+    chunk_overlap=200,
+    length_function=len,
+)
+
+splits = text_splitter.split_documents(documents)</code></pre>
+                            
+                            <h3 class="fw-bolder mb-3">3. Embedding and Storage</h3>
+                            <p class="fs-5 mb-4">Convert the text chunks to embeddings and store them in a vector database:</p>
+                            <pre class="bg-light p-4 rounded"><code>from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import Chroma
+
+embeddings = OpenAIEmbeddings()
+vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings)
+vectorstore.persist()</code></pre>
+                            
+                            <h3 class="fw-bolder mb-3">4. Retrieval</h3>
+                            <p class="fs-5 mb-4">Set up a retriever to fetch relevant documents based on user queries:</p>
+                            <pre class="bg-light p-4 rounded"><code>retriever = vectorstore.as_retriever(
+    search_type="similarity",
+    search_kwargs={"k": 3}
+)</code></pre>
+                            
+                            <h3 class="fw-bolder mb-3">5. Augmentation and Generation</h3>
+                            <p class="fs-5 mb-4">Create a chain that combines retrieval with generation:</p>
+                            <pre class="bg-light p-4 rounded"><code>from langchain.chains import RetrievalQA
+from langchain.llms import OpenAI
+
+llm = OpenAI(temperature=0)
+qa_chain = RetrievalQA.from_chain_type(
+    llm=llm,
+    chain_type="stuff",
+    retriever=retriever,
+    return_source_documents=True
+)
+
+# Query the chain
+result = qa_chain({"query": "What are the key benefits of RAG?"})
+print(result["result"])</code></pre>
+                        </div>
+                        
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">Advanced RAG Techniques</h2>
+                            <p class="fs-5 mb-4">Beyond the basic RAG implementation, several advanced techniques can improve performance:</p>
+                            
+                            <h3 class="fw-bolder mb-3">Agentic RAG</h3>
+                            <p class="fs-5 mb-4">Agentic RAG combines RAG with autonomous agents that can make decisions about when and how to retrieve information. This approach is particularly useful for complex queries that require multiple retrieval steps or when the agent needs to decide whether retrieval is necessary at all.</p>
+                            <p class="fs-5 mb-4">Using LangGraph, you can implement Agentic RAG with a workflow that includes:</p>
+                            <ul class="fs-5 mb-4">
+                                <li><strong>Decision Nodes:</strong> Determine if retrieval is needed based on the query.</li>
+                                <li><strong>Retrieval Nodes:</strong> Fetch relevant information from the knowledge base.</li>
+                                <li><strong>Generation Nodes:</strong> Create responses using the retrieved information.</li>
+                                <li><strong>Evaluation Nodes:</strong> Assess the quality of the response and decide if additional retrieval is needed.</li>
+                            </ul>
+                            
+                            <h3 class="fw-bolder mb-3">Hybrid Search</h3>
+                            <p class="fs-5 mb-4">Combining semantic search with keyword-based search can improve retrieval accuracy:</p>
+                            <pre class="bg-light p-4 rounded"><code>from langchain.retrievers import ContextualCompressionRetriever
+from langchain.retrievers.document_compressors import LLMChainExtractor
+
+# Create a base retriever
+base_retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 4})
+
+# Create a compressor
+compressor = LLMChainExtractor.from_llm(llm)
+
+# Create a compression retriever
+compression_retriever = ContextualCompressionRetriever(
+    base_compressor=compressor,
+    base_retriever=base_retriever
+)</code></pre>
+                            
+                            <h3 class="fw-bolder mb-3">Self-RAG</h3>
+                            <p class="fs-5 mb-4">Self-RAG is an advanced technique where the model itself decides when to retrieve information and evaluates the quality of retrieved documents. This approach can reduce unnecessary retrievals and improve response quality.</p>
+                        </div>
+                        
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">Best Practices for RAG Implementation</h2>
+                            <p class="fs-5 mb-4">To create effective RAG systems, consider these best practices:</p>
+                            <ul class="fs-5 mb-4">
+                                <li><strong>Chunk Size Optimization:</strong> Experiment with different chunk sizes to find the optimal balance between context and precision.</li>
+                                <li><strong>Metadata Filtering:</strong> Add metadata to your documents to enable filtering during retrieval (e.g., by date, source, or category).</li>
+                                <li><strong>Hybrid Retrieval:</strong> Combine semantic search with keyword-based approaches for better results.</li>
+                                <li><strong>Source Attribution:</strong> Include references to the source documents in your responses to improve transparency.</li>
+                                <li><strong>Evaluation:</strong> Regularly evaluate your RAG system's performance using metrics like relevance, accuracy, and user satisfaction.</li>
+                                <li><strong>Continuous Updates:</strong> Implement a process to regularly update your knowledge base with new information.</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">Real-World Applications</h2>
+                            <p class="fs-5 mb-4">RAG is being used in various applications across industries:</p>
+                            <ul class="fs-5 mb-4">
+                                <li><strong>Customer Support:</strong> Providing accurate, up-to-date answers to customer inquiries based on product documentation and FAQs.</li>
+                                <li><strong>Research Assistance:</strong> Helping researchers find relevant papers and information from large academic databases.</li>
+                                <li><strong>Legal Research:</strong> Retrieving relevant case law and statutes to support legal arguments.</li>
+                                <li><strong>Healthcare:</strong> Accessing medical literature and guidelines to support clinical decision-making.</li>
+                                <li><strong>Financial Services:</strong> Providing accurate information about financial products, regulations, and market conditions.</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">Conclusion</h2>
+                            <p class="fs-5 mb-4">Retrieval Augmented Generation represents a significant advancement in AI capabilities, enabling more accurate, relevant, and transparent responses. By connecting large language models to external knowledge sources, RAG addresses many of the limitations of traditional LLMs.</p>
+                            <p class="fs-5 mb-4">In this tutorial, we've explored the fundamentals of RAG, how to implement it using LangChain, and advanced techniques for improving its performance. With these tools and knowledge, you can build AI applications that provide more valuable and reliable information to users.</p>
+                        </div>
+                        
+                        <!-- Video Resources Section -->
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-4">Video Resources</h2>
+                            <p class="fs-5 mb-4">Enhance your learning with these video tutorials on RAG:</p>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100 shadow border-0 rounded-3">
+                                        <div class="ratio ratio-16x9">
+                                            <iframe src="https://www.youtube.com/embed/bZzyPscbtI8" title="RAG Explained" allowfullscreen></iframe>
+                                        </div>
+                                        <div class="card-body p-4">
+                                            <h5 class="card-title">RAG Explained</h5>
+                                            <p class="card-text">Understanding the concept and benefits of Retrieval Augmented Generation.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100 shadow border-0 rounded-3">
+                                        <div class="ratio ratio-16x9">
+                                            <iframe src="https://www.youtube.com/embed/-pqzyvRp3Tc" title="Implementing RAG with LangChain" allowfullscreen></iframe>
+                                        </div>
+                                        <div class="card-body p-4">
+                                            <h5 class="card-title">Implementing RAG with LangChain</h5>
+                                            <p class="card-text">Practical implementation of RAG using LangChain framework.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center mt-3">
+                                <a href="../video-resources.html" class="btn btn-primary">View All Video Resources</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card shadow border-0 rounded-3 mb-5">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <span class="badge bg-primary bg-gradient rounded-pill mb-2">Development</span>
+                                    <h4 class="fw-bolder">Tutorial Details</h4>
+                                </div>
+                                <div class="mb-3">
+                                    <p class="text-muted">Learn how to implement RAG systems to enhance LLM responses with external knowledge.</p>
+                                </div>
+                                <div class="mb-3">
+                                    <h5 class="fw-bolder">Duration</h5>
+                                    <p>~60 minutes</p>
+                                </div>
+                                <div class="mb-3">
+                                    <h5 class="fw-bolder">Prerequisites</h5>
+                                    <p>Basic Python knowledge, understanding of LLMs and embeddings</p>
+                                </div>
+                                <div class="mb-3">
+                                    <h5 class="fw-bolder">Resources</h5>
+                                    <ul class="list-unstyled mb-0">
+                                        <li><a href="https://aws.amazon.com/bedrock/knowledge-base/" target="_blank">AWS Bedrock Knowledge Base</a></li>
+                                        <li><a href="https://python.langchain.com/docs/modules/data_connection/retrievers/" target="_blank">LangChain Retrievers</a></li>
+                                        <li><a href="https://python.langchain.com/docs/modules/data_connection/document_loaders/" target="_blank">LangChain Document Loaders</a></li>
+                                        <li><a href="https://python.langchain.com/docs/modules/data_connection/vectorstores/" target="_blank">LangChain Vector Stores</a></li>
+                                        <li><a href="https://www.pinecone.io/learn/retrieval-augmented-generation/" target="_blank">Pinecone RAG Guide</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Footer-->
+    <footer class="bg-dark py-4 mt-auto">
+        <div class="container px-5">
+            <div class="row align-items-center justify-content-between flex-column flex-sm-row">
+                <div class="col-auto"><div class="small m-0 text-white">Copyright &copy; Agentic AI Tutorial 2024</div></div>
+                <div class="col-auto">
+                    <a class="link-light small" href="#!">Privacy</a>
+                    <span class="text-white mx-1">&middot;</span>
+                    <a class="link-light small" href="#!">Terms</a>
+                    <span class="text-white mx-1">&middot;</span>
+                    <a class="link-light small" href="#!">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
+    <script src="../js/scripts.js"></script>
+</body>
+</html> 
