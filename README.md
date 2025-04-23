@@ -2,6 +2,8 @@
 
 A comprehensive tutorial website demonstrating concepts, tools, and applications of Agentic AI systems.
 
+> ⚠️ **Note**: This is an experimental project created with [Cursor.ai](https://cursor.ai), showcasing the capabilities of AI-assisted development.
+
 ## Overview
 
 This project provides an educational platform focused on Agentic AI, featuring:
